@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Local / secrets
+.env
+.env.*
+*.log
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Optional: generated Word exports (uncomment if you do not want them in git)
+# *.docx
+
+# Optional: large trained artifacts (uncomment to keep repo light)
+# models/car/*.pkl

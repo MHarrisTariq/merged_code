@@ -1,0 +1,123 @@
+:root {
+  color-scheme: light;
+  --bg: #0b1020;
+  --panel: #111a33;
+  --text: #e8ecff;
+  --muted: rgba(232, 236, 255, 0.7);
+  --accent: #7c5cff;
+  --accent2: #2ee59d;
+  --border: rgba(232, 236, 255, 0.12);
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+    Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: radial-gradient(1200px 600px at 20% 0%, rgba(124, 92, 255, 0.25), transparent),
+    radial-gradient(900px 500px at 80% 30%, rgba(46, 229, 157, 0.18), transparent),
+    var(--bg);
+  color: var(--text);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  max-width: 1100px;
+  padding: 32px 18px;
+  margin: 0 auto;
+}
+
+.card {
+  background: linear-gradient(180deg, rgba(17, 26, 51, 0.9), rgba(17, 26, 51, 0.72));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 18px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+}
+
+@media (max-width: 700px) {
+  .inputRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+input {
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(10, 16, 32, 0.55);
+  color: var(--text);
+  outline: none;
+}
+
+input::placeholder {
+  color: rgba(232, 236, 255, 0.45);
+}
+
+.btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #0b1020;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(10, 16, 32, 0.35);
+  font-size: 12px;
+  color: var(--muted);
+}
+

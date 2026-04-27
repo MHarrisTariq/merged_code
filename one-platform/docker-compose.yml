@@ -1,0 +1,44 @@
+name: swyft-one-platform
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      SWYFT_DEV_MEMORY: "1"
+      KAFKA_CONSUMERS_ENABLED: "0"
+
+  car-api:
+    build:
+      context: ./car-api
+      dockerfile: Dockerfile
+    expose:
+      - "8000"
+    environment:
+      SWYFT_INTEGRATED_CAR: "1"
+
+  airbnb-api:
+    build:
+      context: ../../smart Prcing Airbnb
+      dockerfile: backend/Dockerfile
+    expose:
+      - "8100"
+    environment:
+      PORT: 8100
+      SWYFT_INTEGRATED_AIRBNB: "1"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - car-api
+      - airbnb-api
+
