@@ -1,0 +1,33 @@
+{
+  "name": "swyftbooking",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SwyftBooking AI + ML + SEO platform (monorepo)",
+  "scripts": {
+    "dev": "npm-run-all -p dev:*",
+    "dev:frontend": "npm --workspace apps/frontend run dev",
+    "dev:gateway": "npm --workspace apps/api-gateway run dev",
+    "dev:seo": "npm --workspace services/seo-service run dev",
+    "dev:ai": "npm --workspace services/ai-content-service run dev",
+    "dev:pricing": "npm --workspace services/pricing-service run dev",
+    "dev:prediction": "npm --workspace services/prediction-service run dev",
+    "dev:analytics": "npm --workspace services/analytics-service run dev",
+    "lint": "npm-run-all -p lint:*",
+    "lint:frontend": "npm --workspace apps/frontend run lint",
+    "seed:routes": "node scripts/seedRoutesMongoDriver.mjs",
+    "generate:routes": "node scripts/generateRoutes.mjs",
+    "collect:price": "node scripts/collectPriceSnapshot.mjs",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down -v"
+  },
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "mongodb": "^7.1.1",
+    "mongoose": "^9.4.1",
+    "npm-run-all": "^4.1.5"
+  }
+}

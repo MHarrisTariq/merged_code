@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swyft-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: swyft-frontend
+  template:
+    metadata:
+      labels:
+        app: swyft-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: swyft-frontend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: swyft-frontend
+  ports:
+    - port: 80
+      targetPort: 80

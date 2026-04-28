@@ -1,0 +1,21 @@
+# Reference stack: API + Redis cache (see docs/FULL_ENGINEERING_SPEC.md §6)
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      FALLBACK_PRICE_GBP: "99.0"
+      # API_KEY: "change-me"
+      QUOTE_CACHE_TTL_SEC: "300"
+    depends_on:
+      - redis
+    volumes:
+      # Train on host first: python car.py  →  mount artifacts into the container
+      - ./models/car:/app/models/car:ro
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"

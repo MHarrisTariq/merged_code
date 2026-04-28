@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "promoted_listings",
+  "description": "Which listings are actively promoted under a host subscription",
+  "type": "object",
+  "required": ["_id", "host_id", "listing_id", "status"],
+  "properties": {
+    "_id": { "type": "string" },
+    "host_id": { "type": "string" },
+    "listing_id": { "type": "string" },
+    "status": { "type": "string", "enum": ["ACTIVE", "PAUSED", "ENDED"] },
+    "promotion_weight": { "type": "number", "minimum": 0 },
+    "started_at": { "type": "string", "format": "date-time" },
+    "ended_at": { "type": ["string", "null"], "format": "date-time" },
+    "budget_cents": { "type": ["integer", "null"], "minimum": 0 },
+    "metadata": { "type": "object", "additionalProperties": true }
+  },
+  "additionalProperties": true
+}

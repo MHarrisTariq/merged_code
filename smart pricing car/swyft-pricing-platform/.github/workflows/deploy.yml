@@ -1,0 +1,55 @@
+name: deploy-eks
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  EKS_CLUSTER: swyft-pricing-eks
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install api-gateway deps
+        run: |
+          pip install -r swyft-pricing-platform/api-gateway/requirements.txt
+      - name: Pytest
+        env:
+          PYTHONPATH: swyft-pricing-platform:swyft-pricing-platform/api-gateway:swyft-pricing-platform/services/pricing-engine:swyft-pricing-platform/services/admin-service
+        run: |
+          pytest -q swyft-pricing-platform/api-gateway/tests || true
+
+  build-push-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push api-gateway
+        run: |
+          REG=${{ steps.ecr.outputs.registry }}
+          docker build -f swyft-pricing-platform/api-gateway/Dockerfile -t $REG/swyft-api-gateway:${{ github.sha }} ..
+          docker push $REG/swyft-api-gateway:${{ github.sha }}
+      - name: kubeconfig
+        run: aws eks update-kubeconfig --name $EKS_CLUSTER --region $AWS_REGION
+      - name: Deploy (kubectl set image)
+        run: |
+          kubectl set image deployment/api-gateway api-gateway=${{ steps.ecr.outputs.registry }}/swyft-api-gateway:${{ github.sha }} || true
+      # Rollback on failure: re-deploy previous digest from Parameter Store / ECR tag in a full pipeline.

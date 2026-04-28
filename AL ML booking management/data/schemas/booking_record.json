@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BookingRecord",
+  "type": "object",
+  "required": ["listingId", "startDate", "endDate", "idempotencyKey"],
+  "properties": {
+    "listingId": { "type": "string" },
+    "guestId": { "type": "string" },
+    "platform": { "type": "string" },
+    "startDate": { "type": "string", "format": "date" },
+    "endDate": { "type": "string", "format": "date" },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "confirmed", "cancelled"]
+    },
+    "price": { "type": "number" },
+    "currency": { "type": "string", "default": "USD" },
+    "idempotencyKey": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 }
+  }
+}

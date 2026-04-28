@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/pricing.calendar.updated.v1.json",
+  "title": "pricing.calendar.updated",
+  "type": "object",
+  "required": ["schemaVersion", "eventType", "id", "timestamp", "payload"],
+  "properties": {
+    "schemaVersion": { "type": "string", "pattern": "^1\\." },
+    "eventType": { "const": "pricing.calendar.updated" },
+    "id": { "type": "string", "minLength": 8 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "metadata": { "type": "object", "additionalProperties": true },
+    "payload": {
+      "type": "object",
+      "required": ["listingId", "version", "fromDate", "toDate"],
+      "properties": {
+        "listingId": { "type": "string" },
+        "version": { "type": "integer", "minimum": 1 },
+        "fromDate": { "type": "string", "format": "date" },
+        "toDate": { "type": "string", "format": "date" },
+        "currency": { "type": "string" },
+        "summaryMin": { "type": "number" },
+        "summaryMax": { "type": "number" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

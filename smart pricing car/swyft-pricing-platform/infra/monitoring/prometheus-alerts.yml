@@ -1,0 +1,17 @@
+groups:
+  - name: swyft-pricing
+    rules:
+      - alert: HighPricingLatency
+        expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job=~"swyft-.*"}[5m])) by (le, job)) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pricing p99 latency > 200ms"
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HTTP error rate > 1%"

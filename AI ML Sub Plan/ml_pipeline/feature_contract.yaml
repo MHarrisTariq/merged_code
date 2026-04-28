@@ -1,0 +1,87 @@
+# Training/serving feature parity contract — CI must validate sampled keys match.
+version: "1.0.0"
+
+entities:
+  listing:
+    - name: listing_id
+      type: string
+    - name: title_hash
+      type: int
+    - name: image_count
+      type: int
+    - name: price
+      type: float
+    - name: listing_quality
+      type: float
+    - name: review_score
+      type: float
+    - name: availability_days
+      type: int
+  context:
+    - name: position
+      type: int
+      description: SERP position — required for position bias correction (GAP-BIAS)
+    - name: device_type
+      type: string
+    - name: query_hash
+      type: string
+  user:
+    - name: user_id
+      type: string
+      optional: true
+    - name: history_ctr_bucket
+      type: string
+      optional: true
+    - name: user_preferences_embedding_id
+      type: string
+      optional: true
+    - name: past_bookings_count
+      type: int
+      optional: true
+
+  # Doc §6 CTR — listing title, images, price, position, historical CTR, user prefs, device
+  ctr_doc:
+    - name: title_token_hash
+      type: int
+      optional: true
+    - name: image_count
+      type: int
+      optional: true
+    - name: historical_ctr
+      type: float
+      optional: true
+
+  # Doc §7 CVR — price competitiveness, reviews, availability, host rating, time to travel
+  cvr_doc:
+    - name: price_competitiveness_index
+      type: float
+      optional: true
+    - name: review_score
+      type: float
+      optional: true
+    - name: availability_days
+      type: int
+      optional: true
+    - name: host_rating
+      type: float
+      optional: true
+    - name: travel_time_minutes
+      type: float
+      optional: true
+
+labels:
+  ctr:
+    name: clicked
+    type: int
+    values: [0, 1]
+  cvr:
+    name: booked_after_click
+    type: int
+    values: [0, 1]
+
+blocked_features:
+  description: Do not use for model inputs (fairness / policy)
+  names:
+    - protected_class
+    - raw_gender
+    - raw_age

@@ -1,0 +1,11 @@
+{
+  "lst_38700b4c58b26160": {
+    "minPrice": 175.51,
+    "maxPrice": 353.47,
+    "smartPricingEnabled": true,
+    "discounts": {
+      "weekly": 10.0,
+      "monthly": 20.0
+    }
+  }
+}

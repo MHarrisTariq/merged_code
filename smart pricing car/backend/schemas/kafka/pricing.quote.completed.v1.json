@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/pricing.quote.completed.v1.json",
+  "title": "pricing.quote.completed",
+  "type": "object",
+  "required": ["schemaVersion", "eventType", "id", "timestamp", "payload"],
+  "properties": {
+    "schemaVersion": { "type": "string", "pattern": "^1\\." },
+    "eventType": { "const": "pricing.quote.completed" },
+    "id": { "type": "string", "minLength": 8 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "traceparent": { "type": "string" },
+    "metadata": { "type": "object", "additionalProperties": true },
+    "payload": {
+      "type": "object",
+      "required": ["quoteId", "listingId", "amount", "currency", "source"],
+      "properties": {
+        "quoteId": { "type": "string" },
+        "listingId": { "type": "string" },
+        "amount": { "type": "number", "minimum": 0 },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+        "source": { "type": "string", "enum": ["model", "fallback", "rules"] },
+        "degraded": { "type": "boolean" },
+        "modelVersion": { "type": "string" },
+        "latencyMs": { "type": "number" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

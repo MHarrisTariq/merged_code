@@ -1,0 +1,12 @@
+__pycache__
+.pytest_cache
+*.pyc
+.git
+.env
+.venv
+venv
+*.md
+tests
+build_code*.py
+evaluate_models.py
+train_probability.py

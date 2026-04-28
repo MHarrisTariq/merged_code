@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demand-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: demand-service
+  template:
+    metadata:
+      labels:
+        app: demand-service
+    spec:
+      containers:
+        - name: demand-service
+          image: REPLACE_ECR/demand-service:latest
+          ports:
+            - containerPort: 8020
+          envFrom:
+            - configMapRef:
+                name: swyft-config
+          resources:
+            limits:
+              cpu: "500m"
+              memory: 512Mi

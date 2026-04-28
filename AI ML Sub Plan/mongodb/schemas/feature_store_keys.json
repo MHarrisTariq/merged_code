@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "feature_store_keys",
+  "description": "Redis key layout documentation (optional Mongo collection for audit)",
+  "type": "object",
+  "required": ["_id", "entity_type", "entity_id", "feature_version"],
+  "properties": {
+    "_id": { "type": "string" },
+    "entity_type": { "type": "string", "enum": ["listing", "user", "host", "query"] },
+    "entity_id": { "type": "string" },
+    "feature_version": { "type": "string" },
+    "redis_key": { "type": "string" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "checksum": { "type": "string" }
+  },
+  "additionalProperties": true
+}

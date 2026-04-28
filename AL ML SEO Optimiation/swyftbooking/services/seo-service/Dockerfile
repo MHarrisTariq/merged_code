@@ -1,0 +1,20 @@
+FROM node:20-alpine
+
+WORKDIR /app/services/seo-service
+
+COPY services/seo-service/package*.json ./
+RUN npm install --omit=dev
+
+COPY services/seo-service/ ./
+
+WORKDIR /app
+COPY packages/ ./packages/
+
+# Ensure shared packages can resolve their runtime deps when imported from /app/packages/*
+RUN npm init -y >/dev/null 2>&1 && npm install --omit=dev ioredis mongoose
+
+WORKDIR /app/services/seo-service
+
+EXPOSE 5001
+CMD ["node", "index.js"]
+

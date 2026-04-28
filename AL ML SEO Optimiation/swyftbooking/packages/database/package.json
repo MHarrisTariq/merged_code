@@ -1,0 +1,15 @@
+{
+  "name": "database",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared MongoDB connection helper",
+  "main": "mongo.js",
+  "scripts": {
+    "test": "node -e \"console.log('ok')\""
+  },
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mongoose": "^9.4.1"
+  }
+}

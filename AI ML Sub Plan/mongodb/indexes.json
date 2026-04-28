@@ -1,0 +1,21 @@
+{
+  "subscriptions": [
+    { "keys": { "host_id": 1 }, "options": { "unique": true, "name": "host_id_unique" } }
+  ],
+  "promoted_listings": [
+    { "keys": { "host_id": 1, "listing_id": 1 }, "options": { "unique": true, "name": "host_listing" } },
+    { "keys": { "listing_id": 1, "status": 1 }, "options": { "name": "listing_status" } }
+  ],
+  "listing_events": [
+    { "keys": { "listing_id": 1, "occurred_at": -1 }, "options": { "name": "listing_time" } },
+    { "keys": { "event_type": 1, "occurred_at": -1 }, "options": { "name": "event_time" } },
+    { "keys": { "session_id": 1 }, "options": { "name": "session" } }
+  ],
+  "model_registry": [
+    { "keys": { "model_name": 1, "version": -1 }, "options": { "name": "model_version" } }
+  ],
+  "prediction_feedback": [
+    { "keys": { "listing_id": 1, "observed_at": -1 }, "options": { "name": "listing_observed" } },
+    { "keys": { "model_name": 1, "model_version": 1 }, "options": { "name": "model_version_lookup" } }
+  ]
+}

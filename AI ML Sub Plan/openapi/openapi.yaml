@@ -1,0 +1,332 @@
+openapi: 3.0.3
+info:
+  title: Promotion & Ranking Intelligence API
+  version: 1.0.0
+  description: |
+    Hybrid deterministic + AI ranking, host recommendations, and health.
+    Latency target for /v1/rank/score < 50ms excluding optional feature fetch.
+
+servers:
+  - url: https://api.example.com
+    description: Production
+  - url: http://localhost:8080
+    description: Local
+
+paths:
+  /health:
+    get:
+      summary: Liveness
+      operationId: health
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /v1/rank/score:
+    post:
+      summary: Score and order candidate listings for a search query
+      operationId: rankScore
+      parameters:
+        - in: header
+          name: X-Model-Version
+          schema:
+            type: string
+          description: Optional canary model tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RankScoreRequest'
+      responses:
+        '200':
+          description: Ranked listings with component scores
+          headers:
+            X-Model-Version:
+              schema:
+                type: string
+            X-Process-Time-Ms:
+              schema:
+                type: string
+              description: Server processing time in milliseconds (latency SLO)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankScoreResponse'
+        '400':
+          description: Bad request
+
+  /v1/hosts/{hostId}/promote/recommendations:
+    get:
+      summary: Suggested listings to promote (ROI ordering)
+      operationId: hostPromoteRecommendations
+      parameters:
+        - name: hostId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+      responses:
+        '200':
+          description: Recommendations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromoteRecommendationsResponse'
+
+  /v1/events:
+    post:
+      summary: Ingest impression / click / booking (idempotent)
+      operationId: ingestEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventIngest'
+      responses:
+        '202':
+          description: Accepted
+
+  /v1/models/info:
+    get:
+      summary: Active model versions (governance)
+      operationId: modelsInfo
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelsInfoResponse'
+
+  /metrics:
+    get:
+      summary: Prometheus-style counters (doc §17 KPI wiring)
+      operationId: metrics
+      responses:
+        '200':
+          description: Plain text metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /v1/hosts/{hostId}/intelligence/dashboard:
+    get:
+      summary: Host intelligence dashboard (doc §13)
+      operationId: hostIntelligenceDashboard
+      parameters:
+        - name: hostId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Suggestions, expected impressions/clicks, ROI, insights
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostDashboardResponse'
+
+  /v1/admin/alerts/test:
+    post:
+      summary: Admin alert channel test (doc §11)
+      operationId: adminAlertsTest
+      responses:
+        '200':
+          description: No-op stub
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        version:
+          type: string
+
+    RankScoreRequest:
+      type: object
+      required: [query_id, candidates]
+      properties:
+        query_id:
+          type: string
+        user_id:
+          type: string
+          nullable: true
+        session_id:
+          type: string
+        device_type:
+          type: string
+        candidates:
+          type: array
+          maxItems: 500
+          items:
+            $ref: '#/components/schemas/CandidateListing'
+
+    CandidateListing:
+      type: object
+      required: [listing_id, host_id, base_score, plan_id, subscription_status]
+      properties:
+        listing_id:
+          type: string
+        host_id:
+          type: string
+        base_score:
+          type: number
+        plan_id:
+          type: string
+          enum: [FREE, SILVER, PLATINUM]
+        subscription_status:
+          type: string
+          enum: [ACTIVE, EXPIRED, CANCELLED, PENDING]
+        promotion_weight:
+          type: number
+          default: 1.0
+        price:
+          type: number
+        listing_quality:
+          type: number
+          description: 0-1 composite quality signal
+        position_hint:
+          type: integer
+          description: Current or assumed SERP position for bias-aware models
+        device_type:
+          type: string
+        host_promoted_count:
+          type: integer
+          nullable: true
+        host_max_promoted_listings:
+          type: integer
+          nullable: true
+
+    RankedItem:
+      type: object
+      properties:
+        listing_id:
+          type: string
+        final_score:
+          type: number
+        components:
+          type: object
+          additionalProperties:
+            type: number
+
+    RankScoreResponse:
+      type: object
+      properties:
+        ranked:
+          type: array
+          items:
+            $ref: '#/components/schemas/RankedItem'
+        model_versions:
+          type: object
+          additionalProperties:
+            type: string
+
+    PromoteRecommendationsResponse:
+      type: object
+      properties:
+        host_id:
+          type: string
+        limit:
+          type: integer
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              listing_id:
+                type: string
+              roi_score:
+                type: number
+              expected_revenue:
+                type: number
+              promotion_cost:
+                type: number
+              insight:
+                type: string
+              ranking_impact_prediction:
+                type: number
+                nullable: true
+        ranking_impact_prediction_note:
+          type: string
+
+    EventIngest:
+      type: object
+      required: [event_type, listing_id, occurred_at, idempotency_key]
+      properties:
+        idempotency_key:
+          type: string
+        event_type:
+          type: string
+          enum: [IMPRESSION, CLICK, BOOKING]
+        listing_id:
+          type: string
+        host_id:
+          type: string
+        user_id:
+          type: string
+          nullable: true
+        session_id:
+          type: string
+        query_hash:
+          type: string
+        position:
+          type: integer
+        device_type:
+          type: string
+        occurred_at:
+          type: string
+          format: date-time
+        click_rate_burst:
+          type: number
+          nullable: true
+        ip_entropy:
+          type: number
+          nullable: true
+
+    HostDashboardResponse:
+      type: object
+      properties:
+        host_id:
+          type: string
+        suggested_listings_to_promote:
+          type: array
+          items:
+            type: string
+        expected_impressions_7d:
+          type: number
+          nullable: true
+        expected_clicks_7d:
+          type: number
+          nullable: true
+        predicted_roi:
+          type: number
+          nullable: true
+        performance_insights:
+          type: array
+          items:
+            type: object
+
+    ModelsInfoResponse:
+      type: object
+      properties:
+        ctr:
+          type: string
+        conversion:
+          type: string
+        decision_orchestrator:
+          type: string

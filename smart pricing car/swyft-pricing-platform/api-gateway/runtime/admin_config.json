@@ -1,0 +1,10 @@
+{
+  "kill_switch": false,
+  "global_caps": {
+    "min_price_gbp": 5.0,
+    "max_price_gbp": 8000.0,
+    "max_pct_change": 0.2,
+    "smoothing_alpha": 0.8
+  },
+  "regions": {}
+}

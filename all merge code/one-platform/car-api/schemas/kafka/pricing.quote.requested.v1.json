@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/pricing.quote.requested.v1.json",
+  "title": "pricing.quote.requested",
+  "type": "object",
+  "required": ["schemaVersion", "eventType", "id", "timestamp", "payload"],
+  "properties": {
+    "schemaVersion": { "type": "string", "pattern": "^1\\." },
+    "eventType": { "const": "pricing.quote.requested" },
+    "id": { "type": "string", "minLength": 8 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "traceparent": { "type": "string" },
+    "userId": { "type": "string" },
+    "metadata": { "type": "object", "additionalProperties": true },
+    "payload": {
+      "type": "object",
+      "required": ["listingId", "currency", "pickupDate", "returnDate"],
+      "properties": {
+        "listingId": { "type": "string" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+        "pickupDate": { "type": "string", "format": "date" },
+        "returnDate": { "type": "string", "format": "date" },
+        "pickupTime": { "type": "string" },
+        "returnTime": { "type": "string" },
+        "guestMarket": { "type": "string" },
+        "channel": { "type": "string", "enum": ["web", "mobile", "api", "partner"] }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Swyft Pricing",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Pricing latency p99",
+      "targets": [{ "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))" }]
+    },
+    {
+      "type": "graph",
+      "title": "Booking conversion (example)",
+      "targets": [{ "expr": "rate(bookings_total[5m])" }]
+    }
+  ],
+  "schemaVersion": 38,
+  "version": 1
+}

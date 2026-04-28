@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swyft-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: swyft-backend
+  template:
+    metadata:
+      labels:
+        app: swyft-backend
+    spec:
+      containers:
+        - name: backend
+          image: swyft-backend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: MONGODB_URI
+              value: mongodb://mongo:27017/swyftbooking
+            - name: REDIS_URL
+              value: redis://redis:6379/0
+            - name: KAFKA_BROKERS
+              value: kafka:9092
+            - name: AI_SERVICES_URL
+              value: http://swyft-ai-services:8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: swyft-backend
+  ports:
+    - port: 3000
+      targetPort: 3000

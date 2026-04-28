@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "listing_events",
+  "description": "Impression / click / booking funnel for feedback loop and anomaly detection",
+  "type": "object",
+  "required": ["_id", "event_type", "listing_id", "occurred_at"],
+  "properties": {
+    "_id": { "type": "string" },
+    "event_type": { "type": "string", "enum": ["IMPRESSION", "CLICK", "BOOKING"] },
+    "listing_id": { "type": "string" },
+    "host_id": { "type": "string" },
+    "user_id": { "type": ["string", "null"] },
+    "session_id": { "type": "string" },
+    "query_hash": { "type": "string" },
+    "position": { "type": "integer", "minimum": 0 },
+    "device_type": { "type": "string" },
+    "anomaly_score": { "type": ["number", "null"] },
+    "excluded_from_training": { "type": "boolean", "default": false },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "metadata": { "type": "object", "additionalProperties": true }
+  },
+  "additionalProperties": true
+}

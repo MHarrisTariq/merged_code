@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.local
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+*.log
+coverage/
+.DS_Store
+
+# Temporary / local artifacts (not needed in repo)
+analysis1_docx_unzipped/
+Analysis 1 (1).zip
+Analysis 1 (1).extracted.txt

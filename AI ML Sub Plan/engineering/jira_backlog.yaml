@@ -1,0 +1,278 @@
+# AI/ML Promotion & Subscription Intelligence — Jira-style backlog
+# Derived from: AI ML Subscription Plan (requirements + gap analysis)
+
+project: SWYFTBOOKING-AI-ML
+version: 1.0.0
+
+epics:
+  - key: AI-FOUNDATION
+    name: Deterministic foundation enforcement
+    description: Plans, limits, billing, lifecycle, promotion_weight baseline — AI must never violate.
+    stories:
+      - key: AI-FOUNDATION-1
+        title: Enforce plan caps (Free / Silver / Platinum) in ranking path
+        acceptance_criteria:
+          - Given a host on Free plan, when ranking runs, then max promoted listings cannot exceed plan limit.
+          - Given subscription EXPIRED, when ranking runs, then promotion boost is zeroed per policy.
+          - Audit log records plan_id and effective limits per request.
+      - key: AI-FOUNDATION-2
+        title: Click & impression tracking contract
+        acceptance_criteria:
+          - Events stored with listing_id, position, query_hash, user_bucket, timestamp.
+          - Idempotent event ingestion for retries.
+      - key: AI-FOUNDATION-3
+        title: promotion_weight application after AI score
+        acceptance_criteria:
+          - final_score applies deterministic multiplier within documented bounds.
+          - Unit tests for boundary values.
+
+  - key: AI-RANKING
+    name: Smart ranking engine
+    description: Replace static boost with learned composite score with guardrails.
+    stories:
+      - key: AI-RANKING-1
+        title: Ranking score function v1
+        acceptance_criteria:
+          - Implements final_score = f(base_score, promotion_weight, pred_ctr, pred_cvr, quality, personalization, exploration).
+          - Latency p99 < 50ms excluding external feature fetch (configurable budget).
+      - key: AI-RANKING-2
+        title: Reduce boost when predicted_ctr below threshold
+        acceptance_criteria:
+          - Configurable threshold; when pred_ctr < T, ranking boost is reduced per policy.
+          - Metrics emitted for count of down-ranked listings per day.
+
+  - key: AI-CTR
+    name: CTR prediction model
+    description: P(click | listing, position, user_context)
+    stories:
+      - key: AI-CTR-1
+        title: Feature set v1 (title hash, images count, price, position, history, device)
+        acceptance_criteria:
+          - Training and serving feature definitions match (parity check in CI).
+          - Model registry entry with version tag.
+      - key: AI-CTR-2
+        title: LightGBM / XGBoost training pipeline
+        acceptance_criteria:
+          - Daily scheduled train job; artifacts to MLflow.
+          - Offline AUC reported per train.
+
+  - key: AI-CVR
+    name: Conversion prediction model
+    description: P(booking | click); expected_value = pred_ctr * pred_cvr * price
+    stories:
+      - key: AI-CVR-1
+        title: Features for competitiveness, reviews, availability, host rating, travel time
+        acceptance_criteria:
+          - Documented schema; null handling strategy.
+      - key: AI-CVR-2
+        title: Join CTR+CVR into ranking objective
+        acceptance_criteria:
+          - Integration test on sample batch with known EV ordering.
+
+  - key: AI-BUDGET
+    name: Budget Allocation Engine (advanced)
+    description: Doc §4 module 5 — allocate promotion budget vs expected impressions/clicks/ROI.
+    stories:
+      - key: AI-BUDGET-1
+        title: Budget allocation helper
+        acceptance_criteria:
+          - Given budget_cents and expected CPM, outputs spend cap fraction and expected spend.
+  - key: AI-PROMO
+    name: Promotion optimization engine
+    description: Suggest listings to promote; ROI score = expected_revenue / promotion_cost
+    stories:
+      - key: AI-PROMO-1
+        title: Host recommendation API
+        acceptance_criteria:
+          - Returns top-N listings with predicted ROI and confidence band.
+      - key: AI-PROMO-2
+        title: Platinum auto-allocation (optional)
+        acceptance_criteria:
+          - When enabled, rotates underperformers per rules; host notification hooks.
+
+  - key: AI-ANOMALY
+    name: Anomaly detection
+    description: Fake clicks, bots, spikes — exclude from training; alert admin.
+    stories:
+      - key: AI-ANOMALY-1
+        title: Spike detection + exclusion flag
+        acceptance_criteria:
+          - Labeled traffic excluded from model update datasets.
+          - Pager/webhook on critical anomalies.
+
+  - key: AI-PERSONAL
+    name: Personalization
+    description: final_score += personalization_weight(user, listing)
+    stories:
+      - key: AI-PERSONAL-1
+        title: User history features with privacy controls
+        acceptance_criteria:
+          - Opt-out respected; degraded to global model.
+
+  - key: AI-HOST-DASH
+    name: Host intelligence dashboard (APIs backing UI)
+    description: Suggestions, predicted impressions/clicks, ROI, insights strings.
+    stories:
+      - key: AI-HOST-DASH-1
+        title: Insight templates e.g. CTR uplift if promoted
+        acceptance_criteria:
+          - Localized string keys; no PII in logs.
+
+  - key: AI-FEEDBACK
+    name: Feedback loop & retraining
+    description: predicted vs actual CTR/CVR; drift detection.
+    stories:
+      - key: AI-FEEDBACK-1
+        title: Ground truth join pipeline (impression→click→booking)
+        acceptance_criteria:
+          - Attribution window configurable; delayed bookings handled.
+      - key: AI-FEEDBACK-2
+        title: Drift alerts and rollback hooks
+        acceptance_criteria:
+          - Canary comparison between model versions.
+
+  - key: AI-INFRA
+    name: ML infrastructure
+    description: Feature store (Redis + lake), Airflow, MLflow, FastAPI serving.
+    stories:
+      - key: AI-INFRA-1
+        title: Redis online feature cache with TTL
+        acceptance_criteria:
+          - Fallback to batch when cache miss; metrics on hit rate.
+      - key: AI-INFRA-2
+        title: Airflow DAG for daily training
+        acceptance_criteria:
+          - Retries, SLA alerts, artifact promotion on success only.
+
+  - key: AI-FAIRNESS
+    name: Fairness & guardrails
+    description: Paid advantage without unfair suppression; no discriminatory features.
+    stories:
+      - key: AI-FAIRNESS-1
+        title: Blocklist sensitive attributes from models
+        acceptance_criteria:
+          - Schema deny-list enforced at feature extraction.
+      - key: AI-FAIRNESS-2
+        title: Multi-objective weights (revenue, fairness proxy, CTR)
+        acceptance_criteria:
+          - Configurable weights; audit of changes.
+
+  - key: GAP-CAUSAL
+    name: Causal inference layer (gap fix)
+    description: IPS / doubly robust for position bias; P(click | do(rank=k)).
+    stories:
+      - key: GAP-CAUSAL-1
+        title: Propensity model for position
+        acceptance_criteria:
+          - Offline evaluation script comparing naive vs IPS-weighted metrics.
+      - key: GAP-CAUSAL-2
+        title: Training data pipeline applies IPS weights
+        acceptance_criteria:
+          - Documented stability caps on weights.
+
+  - key: GAP-EXPLORE
+    name: Exploration (contextual bandits)
+    description: Epsilon-greedy or LinUCB / Thompson; avoid feedback trap.
+    stories:
+      - key: GAP-EXPLORE-1
+        title: Bandit policy module with epsilon schedule
+        acceptance_criteria:
+          - Explorable listings get minimum exposure floor per period.
+      - key: GAP-EXPLORE-2
+        title: Contextual bandit interface (pluggable)
+        acceptance_criteria:
+          - Swap policy without changing ranking API contract.
+
+  - key: GAP-BIAS
+    name: Position bias correction
+    description: Position as feature; PBM/DBN-ready hooks.
+    stories:
+      - key: GAP-BIAS-1
+        title: Position-aware CTR training
+        acceptance_criteria:
+          - Ablation study notebook or script in repo.
+
+  - key: GAP-PARITY
+    name: Feature parity validation
+    description: train_feature == serving_feature checks.
+    stories:
+      - key: GAP-PARITY-1
+        title: CI parity tests on sampled keys
+        acceptance_criteria:
+          - Fails build on mismatch above tolerance.
+
+  - key: GAP-GOV
+    name: Model governance
+    description: MLflow registry, rollback, A/B tags, canary.
+    stories:
+      - key: GAP-GOV-1
+        title: Model version in every scoring response (header)
+        acceptance_criteria:
+          - Traceable from request to artifact hash.
+
+  - key: GAP-DELAY
+    name: Delayed feedback
+    description: Time-decayed rewards; survival / attribution windows.
+    stories:
+      - key: GAP-DELAY-1
+        title: Configurable booking attribution window
+        acceptance_criteria:
+          - Backfill job for late conversions.
+
+  - key: GAP-MARKET
+    name: Market dynamics (advanced)
+    description: Supply/demand, elasticity — phased.
+    stories:
+      - key: GAP-MARKET-1
+        title: Market features backlog placeholder
+        acceptance_criteria:
+          - Design doc + schema extension points only in v1.
+
+  - key: GAP-LTV
+    name: User LTV (advanced)
+    description: Optimize long-term value — phased.
+    stories:
+      - key: GAP-LTV-1
+        title: LTV feature stub
+        acceptance_criteria:
+          - No production weight until validated.
+
+  - key: GAP-FRAUD
+    name: Fraud / adversarial ML
+    description: Graph fraud, listing manipulation — separate models.
+    stories:
+      - key: GAP-FRAUD-1
+        title: Fraud score integration point (optional input to guardrails)
+        acceptance_criteria:
+          - When absent, pipeline defaults to no-op.
+
+  - key: GAP-ORCH
+    name: Real-time decision orchestrator
+    description: Single engine composing CTR, CVR, RL stub, guardrails.
+    stories:
+      - key: GAP-ORCH-1
+        title: Decision orchestrator service
+        acceptance_criteria:
+          - One entrypoint for scoring; deterministic ordering of stages logged.
+
+  - key: GAP-ONLINE
+    name: Online learning (future)
+    description: Kafka → incremental updates.
+    stories:
+      - key: GAP-ONLINE-1
+        title: Architecture spike
+        acceptance_criteria:
+          - ADR documenting approach; no production requirement v1.
+
+  - key: GAP-ADV-ML
+    name: Advanced ML (embeddings, graph, sequences)
+    description: Phased R&D.
+    stories:
+      - key: GAP-ADV-ML-1
+        title: Listing embedding training stub
+        acceptance_criteria:
+          - Optional feature column in feature store contract.
+
+metrics_kpis:
+  business: [CTR uplift, booking conversion rate, revenue per listing, subscription upgrades]
+  ml: [AUC, prediction accuracy, drift detection rate]

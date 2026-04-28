@@ -1,0 +1,1 @@
+{"quote_id": "qte_contract", "source": "model", "model_version": "test", "recommended_price": 116.0, "confidence_score": 0.78, "explanation_tags": ["peak_season", "short_lead_time", "high_quality_listing", "high_competitive_supply", "clamped_max_upward_change", "smoothed_vs_baseline"], "audit_ts": "2026-04-03T17:02:32.439160+00:00"}
